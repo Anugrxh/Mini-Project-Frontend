@@ -1,15 +1,57 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaEnvelope, FaLock, FaUser, FaPhone, FaEye, FaEyeSlash } from "react-icons/fa";
 import { SiCodeforces } from "react-icons/si";
 
 export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [mobile, setMobile] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/signup/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          full_name: fullName,
+          email: email,
+          mobile: mobile,
+          password: password,
+        }),
+      });
+
+      const data = await response.json();
+      console.log("API Response:", data);
+
+      if (response.ok) {
+        navigate("/login");
+      } else {
+        setError(data.message || "Signup failed!");
+      }
+    } catch (err) {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="relative flex h-screen w-screen items-center justify-center bg-gradient-to-br from-black via-gray-900 to-black overflow-hidden">
-      {/* PrepWise Logo top-left */}
+      {/* PrepWise Logo */}
       <div className="absolute top-6 left-8 flex items-center z-10">
         <SiCodeforces className="text-indigo-400 text-2xl mr-2" />
         <span className="font-extrabold text-xl bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
@@ -17,7 +59,7 @@ export default function Signup() {
         </span>
       </div>
 
-      {/* Animated Background Orbs */}
+      {/* Background Orbs */}
       <motion.div
         className="absolute -top-32 -left-32 z-0 h-96 w-96 rounded-full bg-indigo-600/40 blur-[160px]"
         animate={{ x: [0, 40, -40, 0], y: [0, -30, 30, 0] }}
@@ -29,8 +71,9 @@ export default function Signup() {
         transition={{ repeat: Infinity, duration: 16, ease: "easeInOut" }}
       />
 
-      {/* Signup Card */}
-      <motion.div
+      {/* Signup Form */}
+      <motion.form
+        onSubmit={handleSubmit}
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
@@ -41,13 +84,15 @@ export default function Signup() {
         </h1>
         <p className="mb-8 text-gray-400">Join PrepWise and start preparing today 🚀</p>
 
-        {/* Username */}
+        {/* Full Name */}
         <div className="relative mb-4">
           <FaUser className="absolute left-4 top-1/2 transform -translate-y-1/2 text-pink-300 text-lg" />
           <input
             type="text"
-            placeholder="Username"
-            autoComplete="username"
+            placeholder="Full Name"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            required
             className="w-full rounded-xl bg-gray-900/70 py-4 pl-12 pr-4 text-lg placeholder-gray-400 text-white focus:outline-none focus:ring-2 focus:ring-pink-500 transition"
           />
         </div>
@@ -58,7 +103,9 @@ export default function Signup() {
           <input
             type="email"
             placeholder="Email"
-            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
             className="w-full rounded-xl bg-gray-900/70 py-4 pl-12 pr-4 text-lg placeholder-gray-400 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
           />
         </div>
@@ -69,7 +116,9 @@ export default function Signup() {
           <input
             type="tel"
             placeholder="Mobile Number"
-            autoComplete="tel"
+            value={mobile}
+            onChange={(e) => setMobile(e.target.value)}
+            required
             className="w-full rounded-xl bg-gray-900/70 py-4 pl-12 pr-4 text-lg placeholder-gray-400 text-white focus:outline-none focus:ring-2 focus:ring-green-500 transition"
           />
         </div>
@@ -80,27 +129,32 @@ export default function Signup() {
           <input
             type={showPassword ? "text" : "password"}
             placeholder="Password"
-            autoComplete="new-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
             className="w-full rounded-xl bg-gray-900/70 py-4 pl-12 pr-12 text-lg placeholder-gray-400 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
           />
           <button
             type="button"
             onClick={() => setShowPassword((v) => !v)}
             className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-indigo-300 focus:outline-none"
-            tabIndex={-1}
-            aria-label={showPassword ? "Hide password" : "Show password"}
           >
             {showPassword ? <FaEye /> : <FaEyeSlash />}
           </button>
         </div>
 
-        {/* Submit Button */}
+        {/* Error */}
+        {error && <p className="text-red-400 mb-4 text-center">{error}</p>}
+
+        {/* Submit */}
         <motion.button
+          type="submit"
+          disabled={loading}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="mb-4 w-full rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 py-4 font-semibold shadow-lg text-lg"
+          className="mb-4 w-full rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 py-4 font-semibold shadow-lg text-lg disabled:opacity-50"
         >
-          Sign Up
+          {loading ? "Signing Up..." : "Sign Up"}
         </motion.button>
 
         <p className="text-center text-gray-400">
@@ -109,7 +163,7 @@ export default function Signup() {
             Login
           </Link>
         </p>
-      </motion.div>
+      </motion.form>
     </div>
   );
 }

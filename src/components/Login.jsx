@@ -1,11 +1,56 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import { SiCodeforces } from "react-icons/si";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/login/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+      console.log("Login response:", data);
+
+      if (response.ok) {
+        // Store access token to localStorage (change key if your backend sends different key)
+        if (data.access) {
+          localStorage.setItem("access", data.access);
+        } else if (data.token) {
+          // fallback if your backend sends "token"
+          localStorage.setItem("access", data.token);
+        }
+
+        navigate("/home");
+      } else {
+        setError(
+          data.detail || data.message || "Invalid credentials. Please try again."
+        );
+      }
+    } catch (err) {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="flex items-center justify-center h-screen w-screen bg-gradient-to-br from-black via-gray-900 to-black relative overflow-hidden">
@@ -30,7 +75,8 @@ export default function Login() {
       />
 
       {/* Glassy Card */}
-      <motion.div
+      <motion.form
+        onSubmit={handleSubmit}
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.4 }}
@@ -41,22 +87,28 @@ export default function Login() {
         </h1>
         <p className="text-gray-400 mb-8">Login to continue your journey 🚀</p>
 
-        {/* Email Field with Icon */}
+        {/* Email */}
         <div className="relative mb-4">
           <FaEnvelope className="absolute left-4 top-1/2 transform -translate-y-1/2 text-indigo-300 text-lg" />
           <input
             type="email"
             placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
             className="w-full pl-12 pr-4 py-4 rounded-xl bg-gray-900/70 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-lg"
           />
         </div>
 
-        {/* Password Field with Icon and Show/Hide Button */}
+        {/* Password */}
         <div className="relative mb-6">
           <FaLock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-purple-300 text-lg" />
           <input
             type={showPassword ? "text" : "password"}
             placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
             className="w-full pl-12 pr-12 py-4 rounded-xl bg-gray-900/70 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 text-lg"
           />
           <button
@@ -69,13 +121,18 @@ export default function Login() {
           </button>
         </div>
 
+        {/* Error Message */}
+        {error && <p className="text-red-400 mb-4 text-center">{error}</p>}
+
         {/* Login Button */}
         <motion.button
+          type="submit"
+          disabled={loading}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 py-4 rounded-xl font-semibold shadow-lg text-lg mb-4"
+          className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 py-4 rounded-xl font-semibold shadow-lg text-lg mb-4 disabled:opacity-50"
         >
-          Login
+          {loading ? "Logging in..." : "Login"}
         </motion.button>
 
         <p className="text-center text-gray-400">
@@ -84,7 +141,7 @@ export default function Login() {
             Sign up
           </Link>
         </p>
-      </motion.div>
+      </motion.form>
     </div>
   );
 }
