@@ -1,138 +1,115 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { FaEnvelope, FaLock, FaUser, FaPhone, FaEye, FaEyeSlash } from "react-icons/fa";
+import { SiCodeforces } from "react-icons/si";
 
-// Icons
-const UserIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-  </svg>
-);
-
-const EmailIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.206" />
-  </svg>
-);
-
-const PasswordIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-  </svg>
-);
-const MobileIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 2h10a2 2 0 012 2v16a2 2 0 01-2 2H7a2 2 0 01-2-2V4a2 2 0 012-2z" />
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01" />
-  </svg>
-);
-
-
-const EyeIcon = ({ open }) => (
-  open ? (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-    </svg>
-  ) : (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.269-2.944-9.543-7a10.05 10.05 0 011.67-3.131m3.598-2.806A9.955 9.955 0 0112 5c4.477 0 8.268 2.944 9.542 7a9.96 9.96 0 01-1.299 2.438M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3l18 18" />
-    </svg>
-  )
-);
-
-const Signup = ({ onSwitchForm }) => {
+export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <div className="animate-form-enter">
-      <h2 className="text-3xl font-bold text-center text-white mb-2">
-        Create Account
-      </h2>
-      <p className="text-center text-white/70 mb-8">
-        Start your journey with us today.
-      </p>
+    <div className="relative flex h-screen w-screen items-center justify-center bg-gradient-to-br from-black via-gray-900 to-black overflow-hidden">
+      {/* PrepWise Logo top-left */}
+      <div className="absolute top-6 left-8 flex items-center z-10">
+        <SiCodeforces className="text-indigo-400 text-2xl mr-2" />
+        <span className="font-extrabold text-xl bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+          PrepWise
+        </span>
+      </div>
 
-      <form className="space-y-6">
-        {/* Full Name Input */}
-        <div className="relative">
-          <div className="absolute top-1/2 left-3 -translate-y-1/2">
-            <UserIcon />
-          </div>
+      {/* Animated Background Orbs */}
+      <motion.div
+        className="absolute -top-32 -left-32 z-0 h-96 w-96 rounded-full bg-indigo-600/40 blur-[160px]"
+        animate={{ x: [0, 40, -40, 0], y: [0, -30, 30, 0] }}
+        transition={{ repeat: Infinity, duration: 14, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="absolute bottom-0 right-0 z-0 h-96 w-96 rounded-full bg-purple-600/40 blur-[170px]"
+        animate={{ x: [0, -45, 45, 0], y: [0, 30, -30, 0] }}
+        transition={{ repeat: Infinity, duration: 16, ease: "easeInOut" }}
+      />
+
+      {/* Signup Card */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="relative z-10 max-w-md w-full rounded-2xl bg-gray-800/60 p-10 backdrop-blur-xl shadow-2xl text-white mx-4 sm:mx-0"
+      >
+        <h1 className="mb-2 text-3xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+          Create Account
+        </h1>
+        <p className="mb-8 text-gray-400">Join PrepWise and start preparing today 🚀</p>
+
+        {/* Username */}
+        <div className="relative mb-4">
+          <FaUser className="absolute left-4 top-1/2 transform -translate-y-1/2 text-pink-300 text-lg" />
           <input
             type="text"
-            className="w-full pl-10 pr-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
-            placeholder="Full Name"
-            required
+            placeholder="Username"
+            autoComplete="username"
+            className="w-full rounded-xl bg-gray-900/70 py-4 pl-12 pr-4 text-lg placeholder-gray-400 text-white focus:outline-none focus:ring-2 focus:ring-pink-500 transition"
           />
         </div>
 
-        {/* Email Input */}
-        <div className="relative">
-          <div className="absolute top-1/2 left-3 -translate-y-1/2">
-            <EmailIcon />
-          </div>
+        {/* Email */}
+        <div className="relative mb-4">
+          <FaEnvelope className="absolute left-4 top-1/2 transform -translate-y-1/2 text-indigo-300 text-lg" />
           <input
             type="email"
-            className="w-full pl-10 pr-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
-            placeholder="Email Address"
-            required
+            placeholder="Email"
+            autoComplete="email"
+            className="w-full rounded-xl bg-gray-900/70 py-4 pl-12 pr-4 text-lg placeholder-gray-400 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
           />
         </div>
 
-        {/* Mobile Input */}
-        <div className="relative">
-          <div className="absolute top-1/2 left-3 -translate-y-1/2">
-            <MobileIcon />
-          </div>
+        {/* Mobile Number */}
+        <div className="relative mb-4">
+          <FaPhone className="absolute left-4 top-1/2 transform -translate-y-1/2 text-green-300 text-lg" />
           <input
-            type="email"
-            className="w-full pl-10 pr-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+            type="tel"
             placeholder="Mobile Number"
-            required
+            autoComplete="tel"
+            className="w-full rounded-xl bg-gray-900/70 py-4 pl-12 pr-4 text-lg placeholder-gray-400 text-white focus:outline-none focus:ring-2 focus:ring-green-500 transition"
           />
         </div>
 
-        {/* Password Input with toggle */}
-        <div className="relative">
-          <div className="absolute top-1/2 left-3 -translate-y-1/2">
-            <PasswordIcon />
-          </div>
+        {/* Password */}
+        <div className="relative mb-6">
+          <FaLock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-purple-300 text-lg" />
           <input
             type={showPassword ? "text" : "password"}
-            className="w-full pr-10 pl-10 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
             placeholder="Password"
-            required
+            autoComplete="new-password"
+            className="w-full rounded-xl bg-gray-900/70 py-4 pl-12 pr-12 text-lg placeholder-gray-400 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
           />
           <button
             type="button"
-            className="absolute top-1/2 right-3 -translate-y-1/2"
-            onClick={() => setShowPassword(!showPassword)}
+            onClick={() => setShowPassword((v) => !v)}
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-indigo-300 focus:outline-none"
+            tabIndex={-1}
+            aria-label={showPassword ? "Hide password" : "Show password"}
           >
-            <EyeIcon open={showPassword} />
+            {showPassword ? <FaEye /> : <FaEyeSlash />}
           </button>
         </div>
 
-        {/* Signup Button */}
-        <button
-          type="submit"
-          className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-teal-500 hover:from-blue-700 hover:to-teal-600 rounded-lg text-white font-bold text-lg transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-blue-500"
+        {/* Submit Button */}
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="mb-4 w-full rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 py-4 font-semibold shadow-lg text-lg"
         >
-          Create Account
-        </button>
-      </form>
+          Sign Up
+        </motion.button>
 
-      {/* Switch to Login Form */}
-      <p className="text-center text-sm text-white/60 mt-8">
-        Already have an account?{' '}
-        <button
-          onClick={() => onSwitchForm('login')}
-          className="font-medium text-purple-400 hover:text-purple-300 focus:outline-none focus:underline"
-        >
-          Log in
-        </button>
-      </p>
+        <p className="text-center text-gray-400">
+          Already have an account?{" "}
+          <Link to="/login" className="text-indigo-400 hover:underline">
+            Login
+          </Link>
+        </p>
+      </motion.div>
     </div>
   );
-};
-
-export default Signup;
+}
