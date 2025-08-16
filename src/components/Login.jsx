@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
@@ -10,8 +10,16 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (showSuccess) {
+      const timer = setTimeout(() => setShowSuccess(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showSuccess]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,21 +39,19 @@ export default function Login() {
       console.log("Login response:", data);
 
       if (response.ok) {
-        // Store access token to localStorage (change key if your backend sends different key)
         if (data.access) {
           localStorage.setItem("access", data.access);
         } else if (data.token) {
-          // fallback if your backend sends "token"
           localStorage.setItem("access", data.token);
         }
-
-        navigate("/home");
+        setShowSuccess(true);
+        setTimeout(() => {
+          navigate("/home");
+        }, 1500); // Delay to show success message before redirect
       } else {
-        setError(
-          data.detail || data.message || "Invalid credentials. Please try again."
-        );
+        setError(data.detail || data.message || "Invalid credentials. Please try again.");
       }
-    } catch (err) {
+    } catch {
       setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
@@ -53,7 +59,7 @@ export default function Login() {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen w-screen bg-gradient-to-br from-black via-gray-900 to-black relative overflow-hidden">
+    <div className="relative flex items-center justify-center h-screen w-screen bg-gradient-to-br from-black via-gray-900 to-black overflow-hidden">
       {/* PrepWise Logo top-left */}
       <div className="absolute top-6 left-8 flex items-center z-10">
         <SiCodeforces className="text-indigo-400 text-2xl mr-2" />
@@ -74,6 +80,13 @@ export default function Login() {
         className="absolute bottom-0 right-0 w-96 h-96 bg-purple-600/30 rounded-full blur-[160px]"
       />
 
+      {/* Success Message */}
+      {showSuccess && (
+        <div className="absolute top-24 left-1/2 transform -translate-x-1/2 z-30 px-6 py-3 rounded-xl shadow-lg bg-white text-indigo-700 font-semibold backdrop-blur-md">
+          Successfully logged in!
+        </div>
+      )}
+
       {/* Glassy Card */}
       <motion.form
         onSubmit={handleSubmit}
@@ -82,10 +95,10 @@ export default function Login() {
         transition={{ duration: 0.4 }}
         className="relative z-10 w-full max-w-md backdrop-blur-xl bg-gray-800/60 p-10 rounded-2xl shadow-2xl text-white"
       >
-        <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+        <h1 className="mb-2 text-3xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
           Welcome Back
         </h1>
-        <p className="text-gray-400 mb-8">Login to continue your journey 🚀</p>
+        <p className="mb-8 text-gray-400">Login to continue your journey 🚀</p>
 
         {/* Email */}
         <div className="relative mb-4">
@@ -122,7 +135,7 @@ export default function Login() {
         </div>
 
         {/* Error Message */}
-        {error && <p className="text-red-400 mb-4 text-center">{error}</p>}
+        {error && <p className="mb-4 text-center text-red-400">{error}</p>}
 
         {/* Login Button */}
         <motion.button
@@ -130,7 +143,7 @@ export default function Login() {
           disabled={loading}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 py-4 rounded-xl font-semibold shadow-lg text-lg mb-4 disabled:opacity-50"
+          className="mb-4 w-full rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 py-4 font-semibold shadow-lg text-lg disabled:opacity-50"
         >
           {loading ? "Logging in..." : "Login"}
         </motion.button>

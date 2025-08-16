@@ -1,7 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FaEnvelope, FaLock, FaUser, FaPhone, FaEye, FaEyeSlash } from "react-icons/fa";
+import {
+  FaEnvelope,
+  FaLock,
+  FaUser,
+  FaPhone,
+  FaEye,
+  FaEyeSlash,
+} from "react-icons/fa";
 import { SiCodeforces } from "react-icons/si";
 
 export default function Signup() {
@@ -12,8 +19,16 @@ export default function Signup() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (showSuccess) {
+      const timer = setTimeout(() => setShowSuccess(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showSuccess]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -38,11 +53,14 @@ export default function Signup() {
       console.log("API Response:", data);
 
       if (response.ok) {
-        navigate("/login");
+        setShowSuccess(true);
+        setTimeout(() => {
+          navigate("/login");
+        }, 1500); // Delay to show success message before redirect
       } else {
         setError(data.message || "Signup failed!");
       }
-    } catch (err) {
+    } catch {
       setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
@@ -70,6 +88,13 @@ export default function Signup() {
         animate={{ x: [0, -45, 45, 0], y: [0, 30, -30, 0] }}
         transition={{ repeat: Infinity, duration: 16, ease: "easeInOut" }}
       />
+
+      {/* Success Message */}
+      {showSuccess && (
+        <div className="absolute top-24 left-1/2 z-30 max-w-md -translate-x-1/2 rounded-xl bg-white px-6 py-3 font-semibold text-indigo-700 shadow-lg backdrop-blur-md">
+          Account created successfully!
+        </div>
+      )}
 
       {/* Signup Form */}
       <motion.form
@@ -144,7 +169,7 @@ export default function Signup() {
         </div>
 
         {/* Error */}
-        {error && <p className="text-red-400 mb-4 text-center">{error}</p>}
+        {error && <p className="mb-4 text-center text-red-400">{error}</p>}
 
         {/* Submit */}
         <motion.button
