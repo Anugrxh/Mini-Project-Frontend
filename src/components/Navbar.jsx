@@ -34,9 +34,12 @@ export default function Navbar() {
   }, [showLoggedOutMessage]);
 
   async function handleLogout() {
+    const token = localStorage.getItem("access");
+    let logoutSucceeded = false;
+
     if (!token) {
-      alert("No authentication token found. Please login first.");
       navigate("/login");
+      setShowLoggedOutMessage(true);
       return;
     }
 
@@ -50,16 +53,15 @@ export default function Navbar() {
       });
 
       if (response.ok) {
-        localStorage.removeItem("access");
-        setIsPopoverOpen(false);
-        setShowLoggedOutMessage(true);
-        navigate("/login");
-      } else {
-        const data = await response.json();
-        alert(data.detail || "Logout failed.");
+        logoutSucceeded = true;
       }
-    } catch (error) {
-      alert("Network error. Please try again.");
+    } catch {
+      // Network error, just logout locally
+    } finally {
+      localStorage.removeItem("access");
+      setIsPopoverOpen(false);
+      setShowLoggedOutMessage(true);
+      navigate("/login");
     }
   }
 
