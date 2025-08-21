@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FaUserCircle } from "react-icons/fa";
 import { useNavigate, Link } from "react-router-dom";
+import ProfileEdit from "./ProfileEdit"; // ✅ Import ProfileEdit popup
 
 export default function Navbar() {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [showLoggedOutMessage, setShowLoggedOutMessage] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false); // ✅ Add state for modal
   const popoverRef = useRef(null);
   const navigate = useNavigate();
 
@@ -14,6 +16,7 @@ export default function Navbar() {
   const user = {
     name: "JohnDoe",
     email: "john.doe@example.com",
+    phone: "9876543210"
   };
 
   useEffect(() => {
@@ -124,6 +127,20 @@ export default function Navbar() {
                       <p className="text-base font-semibold truncate">{user.name}</p>
                       <p className="text-xs text-gray-400 truncate">{user.email}</p>
                     </div>
+
+                    {/* ✅ Edit Profile button */}
+                    <button
+                      onClick={() => {
+                        setIsEditOpen(true);
+                        setIsPopoverOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-3 hover:bg-indigo-600 transition text-gray-200"
+                      role="menuitem"
+                    >
+                      Edit Profile
+                    </button>
+
+                    {/* Logout */}
                     <button
                       onClick={handleLogout}
                       className="w-full text-left px-4 py-3 hover:bg-indigo-600 rounded-b-lg text-red-400 font-semibold transition"
@@ -145,6 +162,13 @@ export default function Navbar() {
           </div>
         </div>
       </nav>
+
+      {/* ✅ Mount ProfileEdit popup modal here */}
+      <ProfileEdit
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        user={user}
+      />
 
       <style>{`
         @keyframes fadeInOut {
