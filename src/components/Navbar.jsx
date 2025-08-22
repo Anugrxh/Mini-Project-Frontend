@@ -1,24 +1,48 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FaUserCircle } from "react-icons/fa";
 import { useNavigate, Link } from "react-router-dom";
-import ProfileEdit from "./ProfileEdit"; // ✅ Import ProfileEdit popup
+import ProfileEdit from "./ProfileEdit"; // Adjust path if needed
 
 export default function Navbar() {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [showLoggedOutMessage, setShowLoggedOutMessage] = useState(false);
-  const [isEditOpen, setIsEditOpen] = useState(false); // ✅ Add state for modal
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [user, setUser] = useState(null); // Fetched user data
   const popoverRef = useRef(null);
   const navigate = useNavigate();
 
   const token = localStorage.getItem("access");
   const isLoggedIn = !!token;
 
-  const user = {
-    name: "JohnDoe",
-    email: "john.doe@example.com",
-    phone: "9876543210"
-  };
+  // Fetch user profile when logged in
+  useEffect(() => {
+    async function fetchUserProfile() {
+      if (!token) {
+        setUser(null);
+        return;
+      }
+      try {
+        const response = await fetch("http://127.0.0.1:8000/api/profile/", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data);
+        } else {
+          setUser(null); // Invalid/expired token or server error
+        }
+      } catch {
+        setUser(null);
+      }
+    }
+    fetchUserProfile();
+  }, [token]);
 
+  // Close popover if clicked outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (popoverRef.current && !popoverRef.current.contains(event.target)) {
@@ -29,6 +53,7 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Hide "logged out" message after 3s
   useEffect(() => {
     if (showLoggedOutMessage) {
       const timer = setTimeout(() => setShowLoggedOutMessage(false), 3000);
@@ -36,6 +61,7 @@ export default function Navbar() {
     }
   }, [showLoggedOutMessage]);
 
+  // Logout logic
   async function handleLogout() {
     const token = localStorage.getItem("access");
     let logoutSucceeded = false;
@@ -59,11 +85,12 @@ export default function Navbar() {
         logoutSucceeded = true;
       }
     } catch {
-      // Network error, just logout locally
+      // Network error, proceed to local logout
     } finally {
       localStorage.removeItem("access");
       setIsPopoverOpen(false);
       setShowLoggedOutMessage(true);
+      setUser(null);
       navigate("/login");
     }
   }
@@ -104,7 +131,7 @@ export default function Navbar() {
 
           {/* User Section */}
           <div className="relative">
-            {isLoggedIn ? (
+            {isLoggedIn && user ? (
               <>
                 <button
                   onClick={() => setIsPopoverOpen(!isPopoverOpen)}
@@ -113,7 +140,7 @@ export default function Navbar() {
                   aria-expanded={isPopoverOpen}
                 >
                   <FaUserCircle className="h-6 w-6 text-indigo-400" />
-                  <span>{user.name}</span>
+                  <span>{user.full_name || "User"}</span>
                 </button>
 
                 {isPopoverOpen && (
@@ -124,11 +151,11 @@ export default function Navbar() {
                     aria-label="User menu"
                   >
                     <div className="px-4 py-3 border-b border-gray-700">
-                      <p className="text-base font-semibold truncate">{user.name}</p>
-                      <p className="text-xs text-gray-400 truncate">{user.email}</p>
+                      <p className="text-base font-semibold truncate">{user.full_name || "User"}</p>
+                      <p className="text-xs text-gray-400 truncate">{user.email || ""}</p>
                     </div>
 
-                    {/* ✅ Edit Profile button */}
+                    {/* Edit Profile button */}
                     <button
                       onClick={() => {
                         setIsEditOpen(true);
@@ -140,7 +167,6 @@ export default function Navbar() {
                       Edit Profile
                     </button>
 
-                    {/* Logout */}
                     <button
                       onClick={handleLogout}
                       className="w-full text-left px-4 py-3 hover:bg-indigo-600 rounded-b-lg text-red-400 font-semibold transition"
@@ -163,11 +189,11 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* ✅ Mount ProfileEdit popup modal here */}
+      {/* ProfileEdit modal (show only when Edit open and user loaded) */}
       <ProfileEdit
         isOpen={isEditOpen}
         onClose={() => setIsEditOpen(false)}
-        user={user}
+        user={user || {}} // fallback for initial render
       />
 
       <style>{`

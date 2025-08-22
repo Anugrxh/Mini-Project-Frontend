@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from "react";
 
 export default function ProfileEdit({ isOpen, onClose, user }) {
   const [formData, setFormData] = useState({
-    name: user?.name || "",
-    phone: user?.phone || "",
+    full_name: user?.full_name || "",
+    mobile: user?.mobile || "",
     email: user?.email || "",
     password: "",
     confirmPassword: "",
@@ -12,11 +11,23 @@ export default function ProfileEdit({ isOpen, onClose, user }) {
 
   const [message, setMessage] = useState(null);
 
+  // Update form fields if 'user' prop changes while modal is open
+  useEffect(() => {
+    if (isOpen) {
+      setFormData({
+        full_name: user?.full_name || "",
+        mobile: user?.mobile || "",
+        email: user?.email || "",
+        password: "",
+        confirmPassword: "",
+      });
+    }
+  }, [isOpen, user]);
+
   function handleChange(e) {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   }
-
 
   useEffect(() => {
     if (isOpen) {
@@ -39,24 +50,37 @@ export default function ProfileEdit({ isOpen, onClose, user }) {
 
     try {
       const token = localStorage.getItem("access");
+      // Remove empty password field from request
+      const payload = {
+        full_name: formData.full_name,
+        mobile: formData.mobile,
+      };
+      if (formData.password) payload.password = formData.password;
+
       const response = await fetch("http://127.0.0.1:8000/api/profile/update/", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          name: formData.name,
-          phone: formData.phone,
-          password: formData.password || undefined,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
         setMessage({ type: "success", text: "Profile updated successfully!" });
-        setTimeout(() => onClose(), 2000); // close after success
+        setTimeout(() => {
+          setMessage(null);
+          onClose();
+          // Optionally: trigger parent to refresh profile info here!
+        }, 2000);
       } else {
-        setMessage({ type: "error", text: "Update failed. Try again." });
+        const errorData = await response.json();
+        setMessage({
+          type: "error",
+          text:
+            errorData?.detail ||
+            "Update failed. Please check your input and try again.",
+        });
       }
     } catch {
       setMessage({ type: "error", text: "Network error. Try later." });
@@ -83,25 +107,25 @@ export default function ProfileEdit({ isOpen, onClose, user }) {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Name */}
+          {/* Full Name */}
           <div>
-            <label className="block text-gray-300 mb-1">Name</label>
+            <label className="block text-gray-300 mb-1">Full Name</label>
             <input
               type="text"
-              name="name"
-              value={formData.name}
+              name="full_name"
+              value={formData.full_name}
               onChange={handleChange}
               className="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white focus:ring-2 focus:ring-indigo-400"
             />
           </div>
 
-          {/* Phone */}
+          {/* Mobile */}
           <div>
-            <label className="block text-gray-300 mb-1">Phone</label>
+            <label className="block text-gray-300 mb-1">Mobile</label>
             <input
               type="text"
-              name="phone"
-              value={formData.phone}
+              name="mobile"
+              value={formData.mobile}
               onChange={handleChange}
               className="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white focus:ring-2 focus:ring-indigo-400"
             />
@@ -162,7 +186,6 @@ export default function ProfileEdit({ isOpen, onClose, user }) {
           </div>
         </form>
       </div>
-
       {/* Popup animation */}
       <style>{`
         @keyframes fadeIn {
